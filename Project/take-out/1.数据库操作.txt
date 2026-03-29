@@ -1,0 +1,165 @@
+CREATE TABLE `employee` (
+            `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+            `username` varchar(32) NOT NULL UNIQUE COMMENT '用户名',
+            `name` varchar(32) NOT NULL COMMENT '姓名',
+            `password` varchar(64) NOT NULL COMMENT '密码(md5加密)',
+            `phone` varchar(11) NOT NULL COMMENT '手机号',
+            `sex` varchar(2) NOT NULL COMMENT '性别',
+            `id_number` varchar(18) NOT NULL COMMENT '身份证号',
+            `status` int NOT NULL DEFAULT '1' COMMENT '状态 0:禁用，1:启用',
+            `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+            `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+            `create_user` bigint DEFAULT NULL COMMENT '创建人',
+            `update_user` bigint DEFAULT NULL COMMENT '修改人',
+            PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '员工表';
+
+INSERT INTO `employee` VALUES(1, 'admin', '管理员', 'e10adc3949ba59abbe56e057f20f883e', '13812345678', '1', '110101199001010011', '1', NOW(), NOW(), 1, 1);
+
+
+CREATE TABLE `category` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `type` int DEFAULT NULL COMMENT '类型  1 菜品分类 2 套餐分类',
+    `name` varchar(32) NOT NULL COMMENT '分类名称',
+    `sort` int NOT NULL DEFAULT '0' COMMENT '排序',
+    `status` int DEFAULT NULL COMMENT '分类状态 0：禁用 1：启用',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `create_user` bigint DEFAULT NULL COMMENT '创建人',
+    `update_user` bigint DEFAULT NULL COMMENT '修改人',
+    PRIMARY KEY(`id`),
+    UNIQUE KEY `idx_name` (`name`) COMMENT '分类名称唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '菜品及套餐分类';
+
+INSERT INTO `category` VALUES
+(1, 1, '热销菜品', 1, 1, NOW(), NOW(), 1, 1),
+(2, 1, '招牌套餐', 2, 1, NOW(), NOW(), 1, 1),
+(3, 2, '酒水饮料', 3, 1, NOW(), NOW(), 1, 1);
+
+创建菜品表
+CREATE TABLE `dish` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `name` varchar(32) NOT NULL COMMENT '菜品名称',
+    `category_id` bigint NOT NULL COMMENT '菜品分类id',
+    `price` decimal(10,2) DEFAULT NULL COMMENT '菜品价格',
+    `image` varchar(255) DEFAULT NULL COMMENT '图片',
+    `description` varchar(255) DEFAULT NULL COMMENT '描述信息',
+    `status` int DEFAULT '1' COMMENT '0:停售 1：起售',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `create_user` bigint DEFAULT NULL COMMENT '创建人',
+    `update_user` bigint DEFAULT NULL COMMENT '修改人',
+    PRIMARY KEY(`id`),
+    UNIQUE KEY `idx_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '菜品';
+
+创建菜品口味表 (一个菜品可以有多个口味)
+CREATE TABLE `dish_flavor` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `dish_id` bigint NOT NULL COMMENT '菜品id',
+    `name` varchar(32) NOT NULL COMMENT '口味名称（如：辣度）',
+    `value` varchar(255) DEFAULT NULL COMMENT '口味值(如微辣、中辣...)',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '菜品口味关系表';
+
+INSERT INTO `dish` VALUES
+(1, '宫保鸡丁', 1, 38.00, 'https://example.com/image1.jpg', '经典川菜，麻辣鲜香', 1, NOW(), NOW(), 1, 1),
+(2, '鱼香肉丝', 1, 32.00, 'https://example.com/image2.jpg', '鱼香口味，酸甜可口', 1, NOW(), NOW(), 1, 1);
+
+INSERT INTO `dish_flavor` VALUES
+(1, 1, '辣度', '微辣'),
+(2, 1, '辣度', '中辣'),
+(3, 1, '辣度', '重辣'),
+(4, 2, '甜度', '少糖'),
+(5, 2, '甜度', '正常糖');
+
+创建套餐表
+CREATE TABLE `setmeal` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `category_id` bigint NOT NULL COMMENT '菜品分类id',
+    `name` varchar(32) NOT NULL COMMENT '套餐名称',
+    `price` decimal(10, 2) NOT NULL COMMENT '套餐价格',
+    `status` int DEFAULT '1' COMMENT '状态 0：停售 1：起售',
+    `description` varchar(255) DEFAULT NULL COMMENT '描述信息',
+    `image` varchar(255) DEFAULT NULL COMMENT '图片',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `create_user` bigint DEFAULT NULL COMMENT '创建人',
+    `update_user` bigint DEFAULT NULL COMMENT '修改人',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '套餐';
+
+创建套餐菜品关联表 （多对多关系中间表  一个套餐可以有多个菜品，一个菜品可以在多个套餐内都有）
+解析：中间表（也叫关联表 / 连接表） 是专门用来 “拆解” 多对多关系的表 —— 因为数据库无法直接存储多对多关系，必须通过中间表将其拆分为两个一对多关系
+CREATE TABLE `setmeal_dish` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `setmeal_id` bigint NOT NULL COMMENT '套餐id',
+    `dish_id` bigint NOT NULL COMMENT '菜品id',
+    `name` varchar(32) DEFAULT NULL COMMENT '菜品名称（冗余字段）',
+    `price` decimal(10, 2) NOT NULL COMMENT '菜品原价（冗余字段）',
+    `copies` int NOT NULL COMMENT '份数',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_setmeal_dish` (`setmeal_id`, `dish_id`) COMMENT '套餐和菜品唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '套餐菜品关系';
+
+INSERT INTO `setmeal` VALUES
+(1, 2, '超值工作日套餐', 38.00, 1, '工作日特惠套餐', 'https://example.com/combo1.jpg', NOW(), NOW(), 1, 1),
+(2, 2, '经典双人餐', 68.00, 1, '经典双人搭配', 'https://example.com/combo2.jpg', NOW(), NOW(), 1, 1);
+
+INSERT INTO `setmeal_dish` VALUES
+(1, 1, 1, '宫保鸡丁', 38.00, 1),
+(2, 1, 2, '鱼香肉丝', 32.00, 1);
+
+INSERT INTO `setmeal_dish` VALUES
+(3, 2, 1, '宫保鸡丁', 38.00, 2);
+
+
+
+订单管理模块：
+1.订单表
+CREATE TABLE `order` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `number` varchar(50) DEFAULT NULL COMMENT '订单号',
+    `status` int NOT NULL DEFAULT '1' COMMENT '订单状态 1：待付款 2：待接单 3.已接单 4.派送中 5.已完成 6.已取消 7.退款',
+    `user_id` bigint NOT NULL COMMENT '下单用户id',
+    `address_book_id` bigint DEFAULT NULL COMMENT '地址id',
+    `order_time` datetime NOT NULL COMMENT '下单时间',
+    `checkout_time` datetime DEFAULT NULL COMMENT '结账时间',
+    `pay_method` int NOT NULL DEFAULT '1' COMMENT '支付方式 1：微信 2：支付宝',
+    `pay_status` tinyint NOT NULL DEFAULT '0' COMMENT '支付状态 0：未支付 1：已支付 2：退款',
+    `amount` decimal(10, 2) NOT NULL COMMENT '实收金额',
+    `remark` varchar(100) DEFAULT NULL COMMENT '备注',
+    `phone` varchar(20) DEFAULT NULL COMMENT '手机号',
+    `address` varchar(255) DEFAULT NULL COMMENT '地址',
+    `user_name` varchar(50) DEFAULT NULL COMMENT '用户名称',
+    `consignee` varchar(50) DEFAULT NULL COMMENT '收货人',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '订单表';
+2.订单明细表
+CREATE TABLE `order_detail` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `name` varchar(32) DEFAULT NULL COMMENT '商品名称',
+    `image` varchar(255) DEFAULT NULL COMMENT '商品图片',
+    `order_id` bigint NOT NULL COMMENT '订单id',
+    `dish_id` bigint DEFAULT NULL COMMENT '菜品id',
+    `setmeal_id` bigint DEFAULT NULL COMMENT '套餐id',
+    `dish_flavor` varchar(50) DEFAULT NULL COMMENT '菜品口味',
+    `number` int NOT NULL DEFAULT '1' COMMENT '菜品数量',
+    `amount` decimal(10, 2) NOT NULL COMMENT '商品单价',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '订单明细表';
+3.购物车表
+CREATE TABLE `shopping_cart` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `name` varchar(32) DEFAULT NULL COMMENT '商品名称',
+    `image` varchar(255) DEFAULT NULL COMMENT '商品图片',
+    `user_id` bigint NOT NULL COMMENT '用户id',
+    `dish_id` bigint DEFAULT NULL COMMENT '菜品id',
+    `setmeal_id` bigint DEFAULT NULL COMMENT '套餐id',
+    `dish_flavor` varchar(50) DEFAULT NULL COMMENT '菜品口味',
+    `number` int NOT NULL DEFAULT '1' COMMENT '商品数量',
+    `amount` decimal(10, 2) NOT NULL COMMENT '商品单价',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '购物车';

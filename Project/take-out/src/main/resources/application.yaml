@@ -1,0 +1,22 @@
+server: #服务器相关配置
+  port: 8080 #端口号
+
+spring: #spring框架核心配置
+  application: #应用名称配置
+    name: take-out #项目名称（外卖）
+  datasource: #数据库连接配置
+    drive-class-name: com.mysql.cj.jdbc.Driver #mysql驱动
+    url: jdbc:mysql://localhost:3306/take_out?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: 123456
+
+  mybatis-plus: #mybatis框架配置
+    mapper-locations: classpath:mapper/*.xml #指定mybatis的映射文件位置
+    type-aliases-package: com.sky.takeout.entiry #给实体类起别名，写sql时不用写全类名
+    configuration:
+      map-underscore-to-camel-case: true  # 开启下划线转驼峰命名（比如数据库字段user_name自动对应实体类的userName）
+      global-config:
+        db-config:
+          logic-delete-field: deleted
+          logic-delete-value: 1
+          logic-not-delete-value: 0

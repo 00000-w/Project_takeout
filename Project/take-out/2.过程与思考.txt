@@ -1,0 +1,45 @@
+六.更改订单状态
+1.建包constant并创类OrderConstant定义状态 订单状态、支付状态、支付方式
+2.写确认订单dto和取消订单dto。都要传订单id，取消要理由，确认要改状态
+3.在service接口写接单、拒单、取消、配送、完成方法
+4.在serviceImpl中写方法校验订单存在否、期望状态是否与数据库一致
+5.实现接口方法 （别忘了@Transactional， 别忘了complete一步要设置结束时间）
+
+我思考的问题：1.为什么状态中有退款，service中却没写退款方法。 -> 退款不是普通状态流转，本质是 资金操作 + 状态流转，不适合和普通状态流转混在一起
+           2.为什么会出现数据库状态和期望状态不一致的情况？多线程吗？ -> 线程A（商家）查看订单 status=2（待接单）  线程B（用户）申请退款 线程A（商家）接单。
+
+七.订单详情查询
+1.建类OrderVO作为后端返回给前端的视图数据
+2.OrderService新写方法：查询订单详情
+3.OrderController添加接口
+    public Integer getTotalNum() {
+        if (CollectionUtils.isEmpty(orderDetails)) { //代替list == null || list.isEmpty()
+            return 0;
+        }
+        return orderDetails.stream()
+                .mapToInt(OrderDetail::getNumber)  // mapToInt()把对象流转换成基本int流
+                .sum();
+    }
+    犯错：switch只能基本类型常量，不能使用包装类常量 -> 常量从Integer改为int类型
+    switch(status) {
+                case OrderConstant.PENDING_PAYMENT: return "待付款";
+                case OrderConstant.TO_BE_CONFIRMED:
+            }
+
+八.用户查看自己的订单历史
+添加方法并实现、添加controller接口
+分页：1.用户端接口  -> /user/orders/history (面向普通用户，语义清晰) 2.管理端接口  ->   /admin/orders/page (面向管理员，统一分页模板)
+
+
+九.实现模拟支付功能
+1.支付dto
+我出现的问题及改进：OrderConstant中的常量设为了int类型，不能使用equals()方法 -> Objects.equals() 实战中99%情况下都用Objects.equals()
+                比较两个可能为 null 的对象，一律用 Objects.equals()。防止NPE null会导致系统炸掉
+                1%的情况：1.明确知道不可能为Null 2.极端性能要求场景（极少）
+                记住：用Objects.equals()的时候，常量写在左（虽然写左写右都安全，但养成这种“约定俗成”的习惯）
+RESTful风格 -> POST：创建资源
+              PUT：更新资源（全量更新）
+              PATCH：部分更新资源
+              DELETE：删除资源
+              GET：获取资源
+              1.@PutMapping("/payment")是RPC风格，不知道对什么支付，不符合RESTful风格
