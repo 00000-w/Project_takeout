@@ -10,6 +10,7 @@ import com.sky.takeout.entity.ShoppingCart;
 import com.sky.takeout.mapper.*;
 import com.sky.takeout.result.PageResult;
 import com.sky.takeout.service.OrderService;
+import com.sky.takeout.utils.UserContext;
 import com.sky.takeout.vo.OrderSubmitVO;
 import com.sky.takeout.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +46,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class) //抛出Exception就全部回滚
     public OrderSubmitVO submitOrder(OrderSubmitDTO orderSubmitDTO) {
         //业务校验
-        //模拟用户id todo
-        Long currentUserId = 1L;
+        Long currentUserId = UserContext.getCurrentId();
 
         //1.1校验购物车是否为空
         List<ShoppingCart> shoppingCarts = shoppingCartMapper.getByUserId(currentUserId);
@@ -233,8 +233,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageResult getHistoryOrders(OrderPageQueryDTO dto) {
-        //todo:必须限制当前用户，只能查自己的
-        Long currentId = 1L;
+        Long currentId = UserContext.getCurrentId();
 
         Page<Orders> page = new Page<>(dto.getPage(), dto.getPageSize());
 

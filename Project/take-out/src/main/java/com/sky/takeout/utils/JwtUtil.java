@@ -7,7 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.Map;
 
-public class jwtUtil {
+public class JwtUtil {
     //签名密钥（实际项目从配置中获取，实际绝对不能硬编码。此处练习用）
     private static final String SECRET_KEY = "sky-take-out-secret-key-2026";
     //token有效期（毫秒）

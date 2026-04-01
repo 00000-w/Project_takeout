@@ -30,14 +30,10 @@ public class SetmealController {
     }
 
     @GetMapping("/page")
-    public Map<String, Object> page (SetmealPageQueryDTO setmealPageQueryDTO) {
+    public Result<PageResult> page (SetmealPageQueryDTO setmealPageQueryDTO) {
         PageResult pageResult = setmealService.pageQuery(setmealPageQueryDTO);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 1);
-        result.put("msg", "分页查询成功");
-        result.put("data", pageResult);
-        return result;
+        return Result.success(pageResult);
     }
 
     @DeleteMapping
@@ -52,14 +48,10 @@ public class SetmealController {
     }
 
     @GetMapping("/{id}")
-    public Map<String, Object> getById(@PathVariable Long id) {
+    public Result<SetmealDTO> getById(@PathVariable Long id) {
         SetmealDTO byIdWithDish = setmealService.getByIdWithDish(id);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 1);
-        result.put("msg", "查询成功");
-        result.put("data", byIdWithDish);
-        return result;
+        return Result.success(byIdWithDish);
     }
 
     @PutMapping
@@ -69,7 +61,7 @@ public class SetmealController {
         return Result.success();
     }
 
-    @PostMapping("status/{status}")
+    @PostMapping("/status/{status}")
     public Result<Void> updateStatus(@PathVariable Integer status, Long id) {
         setmealService.updateStatus(status, id);
 

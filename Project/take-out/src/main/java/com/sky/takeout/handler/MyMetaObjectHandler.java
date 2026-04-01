@@ -1,6 +1,7 @@
 package com.sky.takeout.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.sky.takeout.utils.UserContext;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
@@ -28,16 +29,14 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         // 4. LocalDateTime.now()：要填充的具体值
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        //TODO:这里暂时写死1L，后续从登录用户获取真实ID
-        this.strictInsertFill(metaObject, "createUser", Long.class, 1L);
-        this.strictInsertFill(metaObject, "updateUser", Long.class, 1L);
+        this.strictInsertFill(metaObject, "createUser", Long.class, UserContext.getCurrentId());
+        this.strictInsertFill(metaObject, "updateUser", Long.class, UserContext.getCurrentId());
     }
 
     @Override
     //更新时自动填充
     public void updateFill(MetaObject metaObject) {
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        //TODO:应从登录用户获取
-        this.strictUpdateFill(metaObject, "updateUser", Long.class, 1L);
+        this.strictUpdateFill(metaObject, "updateUser", Long.class, UserContext.getCurrentId());
     }
 }

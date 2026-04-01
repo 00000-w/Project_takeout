@@ -2,14 +2,14 @@ package com.sky.takeout.controller;
 
 import com.sky.takeout.dto.EmployeePageQueryDTO;
 import com.sky.takeout.entity.Employee;
-import com.sky.takeout.mapper.EmployeeMapper;
 import com.sky.takeout.result.PageResult;
 import com.sky.takeout.result.Result;
 import com.sky.takeout.service.EmployeeService;
-import com.sky.takeout.utils.jwtUtil;
+import com.sky.takeout.utils.JwtUtil;
 import javax.servlet.http.HttpServletRequest;
+
+import com.sky.takeout.vo.LoginVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping("/login")
-    public Result<Employee> login(@RequestBody Map<String, String> loginForm) {
+    public Result<LoginVO> login(@RequestBody Map<String, String> loginForm) {
         //前端传参调取用户名和密码
         String username = loginForm.get("username");
         String password = loginForm.get("password");
@@ -39,13 +39,16 @@ public class EmployeeController {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", employee.getId());
         claims.put("username", employee.getUsername());
-        String token = jwtUtil.generateToken(claims);
+        String token = JwtUtil.generateToken(claims);
 
-        //隐藏密码
-        //即使数据库中存的密码是密文，也建议用占位符替代
-        employee.setPassword("******");
+        LoginVO loginVO = LoginVO.builder()
+                .token(token)
+                .id(employee.getId())
+                .username(employee.getUsername())
+                .name(employee.getName())
+                .build();
 
-        return Result.success(employee);
+        return Result.success(loginVO);
     }
 
     @PostMapping("/logout")

@@ -9,6 +9,7 @@ import com.sky.takeout.mapper.DishMapper;
 import com.sky.takeout.mapper.SetmealMapper;
 import com.sky.takeout.mapper.ShoppingCartMapper;
 import com.sky.takeout.service.ShoppingCartService;
+import com.sky.takeout.utils.UserContext;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCart add(ShoppingCartDTO shoppingCartDTO) {
         //模拟用户id
-        Long currentUserId = 1L;
+        Long currentUserId = UserContext.getCurrentId();
 
         //将dto属性拷贝到entity
         ShoppingCart shoppingCart = new ShoppingCart();
@@ -81,7 +82,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public List<ShoppingCart> list() {
-        Long currentUserId = 1L;
+        Long currentUserId = UserContext.getCurrentId();
 
         return shoppingCartMapper.getByUserId(currentUserId);
     }
@@ -89,7 +90,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     @Transactional
     public void clean() {
-        Long currentUserId = 1L;
+        Long currentUserId = UserContext.getCurrentId();
 
         shoppingCartMapper.cleanByUserId(currentUserId);
     }

@@ -1,7 +1,6 @@
 package com.sky.takeout.controller;
 
 import com.sky.takeout.dto.*;
-import com.sky.takeout.mapper.OrderMapper;
 import com.sky.takeout.result.PageResult;
 import com.sky.takeout.result.Result;
 import com.sky.takeout.service.OrderService;
@@ -10,90 +9,57 @@ import com.sky.takeout.vo.OrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
+/**
+ * 用户端订单接口
+ */
 @RestController
 @RequestMapping("/user/order")
 public class OrderController {
+
     @Autowired
     private OrderService orderService;
 
+    // 用户下单
     @PostMapping("/submit")
     public Result<OrderSubmitVO> submit(@RequestBody OrderSubmitDTO orderSubmitDTO) {
         OrderSubmitVO orderSubmitVO = orderService.submitOrder(orderSubmitDTO);
-
         return Result.success(orderSubmitVO);
     }
 
-    @GetMapping("/page")
-    public Result<PageResult> page(OrderPageQueryDTO orderPageQueryDTO) {
-        PageResult pageResult = orderService.pageQuery(orderPageQueryDTO);
-
+    // 用户查看历史订单
+    @GetMapping("/historyOrders")
+    public Result<PageResult> historyOrders(OrderPageQueryDTO dto) {
+        PageResult pageResult = orderService.getHistoryOrders(dto);
         return Result.success(pageResult);
     }
 
-    @PutMapping("/confirm")
-    public Result<Void> confirm(@RequestBody OrderConfirmDTO dto) {
-        orderService.confirm(dto);
-
-        return Result.success();
-    }
-
-    @PutMapping("/rejection")
-    public Result<Void> rejection(@RequestBody OrderCancelDTO dto) {
-        orderService.rejection(dto);
-
-        return Result.success();
-    }
-
-    @PutMapping("/cancel")
-    public Result<Void> cancel(@RequestBody OrderCancelDTO dto) {
-        orderService.cancel(dto);
-
-        return Result.success();
-    }
-
-    @PutMapping("/delivery/{id}")
-    public Result<Void> delivery(@PathVariable Long id) {
-        orderService.delivery(id);
-
-        return Result.success();
-    }
-
-    @PutMapping("/complete/{id}")
-    public Result<Void> complete(@PathVariable Long id) {
-        orderService.complete(id);
-
-        return Result.success();
-    }
-
+    // 用户查看订单详情
     @GetMapping("/detail/{id}")
     public Result<OrderVO> detail(@PathVariable Long id) {
-        OrderVO orderDetail = orderService.getOrderDetail(id);
-
-        return Result.success(orderDetail);
+        OrderVO orderVO = orderService.getOrderDetail(id);
+        return Result.success(orderVO);
     }
 
-    @GetMapping("/historyOrders")
-    public Result<PageResult> pageHistoryOrder(OrderPageQueryDTO dto) {
-        PageResult pageResult = orderService.getHistoryOrders(dto);
-
-        return Result.success(pageResult);
-    }
-
+    // 用户支付
     @PutMapping("/payment")
     public Result<Void> payment(@RequestBody OrderPaymentDTO dto) {
         orderService.payment(dto);
-
         return Result.success();
     }
 
+    // 查询支付状态
     @GetMapping("/payment/status")
     public Result<Map<String, Object>> getPaymentStatus(@RequestParam String orderNumber) {
         Map<String, Object> paymentStatus = orderService.getPaymentStatus(orderNumber);
-
         return Result.success(paymentStatus);
+    }
+
+    // 用户取消订单
+    @PutMapping("/cancel")
+    public Result<Void> cancel(@RequestBody OrderCancelDTO dto) {
+        orderService.cancel(dto);
+        return Result.success();
     }
 }

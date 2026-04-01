@@ -67,8 +67,8 @@ public class DishController {
     }
 
     //菜品起售/停售
-    @PostMapping("status/{status}")
-    public Result<Void> updateStatus(@RequestParam Integer status, Long id) {
+    @PostMapping("/status/{status}")
+    public Result<Void> updateStatus(@RequestParam Integer status,@RequestParam Long id) {
         dishService.updateStatus(id, status);
 
         Result<Void> result = new Result<>();

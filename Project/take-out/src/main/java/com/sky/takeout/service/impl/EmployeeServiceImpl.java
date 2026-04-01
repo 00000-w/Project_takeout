@@ -7,6 +7,7 @@ import com.sky.takeout.dto.EmployeePageQueryDTO;
 import com.sky.takeout.entity.Employee;
 import com.sky.takeout.mapper.EmployeeMapper;
 import com.sky.takeout.service.EmployeeService;
+import com.sky.takeout.utils.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -124,9 +125,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employee == null)
             throw new RuntimeException("员工不存在");
 
-        //TODO:实际中应该从jwt token中获取当前登录用户Id。此处模拟为1L
         //当前登录id
-        Long currentUserId = 1L;
+        Long currentUserId = UserContext.getCurrentId();
 
         //3.不能禁用自己
         if (id.equals(currentUserId) && status == 0)
@@ -168,8 +168,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //2.设置更新时间和更新用户
         employee.setUpdateTime(LocalDateTime.now());
-        //TODO
-        employee.setUpdateUser(1L);
+
+        employee.setUpdateUser(UserContext.getCurrentId());
 
         //3.执行更新
         employeeMapper.updateById(employee);

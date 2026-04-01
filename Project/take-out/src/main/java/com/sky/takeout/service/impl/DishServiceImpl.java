@@ -34,10 +34,10 @@ public class DishServiceImpl implements DishService {
         dish.setStatus(1);
         dishMapper.insert(dish);
 
-        Long dishId = dto.getId();
+        Long dishId = dish.getId();
 
         List<DishFlavor> flavors = dto.getFlavors();
-        if (dishId != null && flavors != null) {
+        if (dishId != null && flavors != null && !flavors.isEmpty()) {
             flavors.forEach(flavor -> flavor.setDishId(dishId));
             for (DishFlavor flavor : flavors) {
                 //犯错:写了dishFlavorMapper.insert(dto.getFlavors());
