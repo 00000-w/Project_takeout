@@ -12,6 +12,8 @@ import com.sky.takeout.result.PageResult;
 import com.sky.takeout.service.DishService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -27,6 +29,7 @@ public class DishServiceImpl implements DishService {
     private DishFlavorMapper dishFlavorMapper;
 
     @Override
+    @CacheEvict(value = "dish", allEntries = true)
     public void saveWithFlavor(DishDTO dto) {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dto, dish);
@@ -97,6 +100,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    @CacheEvict(value = "dish", allEntries = true)
     public void updateWithFlavor(DishDTO dto) {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dto, dish);
@@ -114,6 +118,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    @CacheEvict(value = "dish", allEntries = true)
     public void deleteBatch(List<Long> ids) {
         //1.删除菜品
         dishMapper.deleteByIds(ids);
@@ -125,6 +130,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    @CacheEvict(value = "dish", allEntries = true)
     public void updateStatus(Long id, Integer status) {
         Dish dish = Dish.builder()
                 .id(id)
@@ -135,6 +141,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    @Cacheable(value = "dish", key = "#categoryId")
     public List<DishDTO> listByCategoryId(Long categoryId) {
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(categoryId != null, Dish::getCategoryId, categoryId);

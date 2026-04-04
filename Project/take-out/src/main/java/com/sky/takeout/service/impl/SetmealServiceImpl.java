@@ -12,6 +12,8 @@ import com.sky.takeout.result.PageResult;
 import com.sky.takeout.service.SetmealService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -28,6 +30,7 @@ public class SetmealServiceImpl implements SetmealService {
     private SetmealDishMapper setmealDishMapper;
 
     @Override
+    @CacheEvict(value = "setmeal", allEntries = true)
     @Transactional //声明式事务   要么都成功，要么都失败（多表操作必须加事务，避免数据不一致）
     public void saveWithDish(SetmealDTO setmealDTO) {
         //把dto中的套餐基本信息拷贝到Setmeal实体（只拷贝同名类型字段）
@@ -78,6 +81,7 @@ public class SetmealServiceImpl implements SetmealService {
     }
 
     @Override
+    @CacheEvict(value = "setmeal", allEntries = true)
     @Transactional
     public void deleteBatch(List<Long> ids) {
         //只删除起售数据
@@ -109,6 +113,7 @@ public class SetmealServiceImpl implements SetmealService {
     }
 
     @Override
+    @CacheEvict(value = "setmeal", allEntries = true)
     @Transactional
     public void updateWithDish(SetmealDTO dto) {
         Setmeal setmeal = new Setmeal();
@@ -128,12 +133,14 @@ public class SetmealServiceImpl implements SetmealService {
     }
 
     @Override
+    @CacheEvict(value = "setmeal", allEntries = true)
     public void updateStatus(Integer status, Long id) {
         Setmeal setmeal = Setmeal.builder().id(id).status(status).build();
         setmealMapper.updateById(setmeal);
     }
 
     @Override
+    @Cacheable(value = "setmeal", key = "#categoryId")
     public List<SetmealDTO> listByCategoryId(Long categoryId) {
         //查找list
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();

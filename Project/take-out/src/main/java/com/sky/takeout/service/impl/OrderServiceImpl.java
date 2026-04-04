@@ -13,6 +13,7 @@ import com.sky.takeout.service.OrderService;
 import com.sky.takeout.utils.UserContext;
 import com.sky.takeout.vo.OrderSubmitVO;
 import com.sky.takeout.vo.OrderVO;
+import com.sky.takeout.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +34,22 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMapper orderMapper; //订单主表
+
     @Autowired
     private OrderDetailMapper orderDetailMapper; //订单明细
+
     @Autowired
     private ShoppingCartMapper shoppingCartMapper; //购物车
+
     @Autowired
     private AddressBookMapper addressBookMapper; //地址
+
     @Autowired
     private UserMapper userMapper;//用户信息
+
+    @Autowired
+    private WebSocketServer webSocketServer;
+
 
     @Override
     @Transactional(rollbackFor = Exception.class) //抛出Exception就全部回滚
@@ -108,8 +117,29 @@ public class OrderServiceImpl implements OrderService {
 
         shoppingCartMapper.cleanByUserId(currentUserId);
 
-        return OrderSubmitVO.builder().
-                id(orderId)
+
+        // websocket来电提醒
+        // 构建推送消息（JSON格式）
+        Map<String, Object> wsMessage = new HashMap<>();
+        // type=1 表示来单提醒（type=2可以表示催单等其他类型）
+        wsMessage.put("type", 1);
+        wsMessage.put("orderId", orderId);
+        wsMessage.put("content", "您有新订单，订单号：" + orderNumber);
+
+        // 转成JSON字符串推送
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper =
+                    new com.fasterxml.jackson.databind.ObjectMapper();
+            String wsJson = objectMapper.writeValueAsString(wsMessage);
+            webSocketServer.sendToAllClient(wsJson);
+            log.info("来单提醒已推送，订单号：{}", orderNumber);
+        } catch (Exception e) {
+            log.error("来单提醒推送失败：", e);
+            // 推送失败不影响下单流程
+        }
+
+        return OrderSubmitVO.builder()
+                .id(orderId)
                 .orderNumber(orderNumber)
                 .orderAmount(amount)
                 .orderTime(order.getOrderTime())
@@ -310,6 +340,31 @@ public class OrderServiceImpl implements OrderService {
         result.put("payMethod", order.getPayMethod());
         return result;
     }
+
+    @Override
+    public void reminder(Long id) {
+        // 1.订单是否存在
+        Orders order = orderMapper.selectById(id);
+        if (order == null)
+            throw new RuntimeException("订单不存在");
+
+        // 2.推送催单消息
+        Map<String, Object> wsMessage = new HashMap<>();
+        // type=2 表示催单
+        wsMessage.put("type", 2);
+        wsMessage.put("orderId", id);
+        wsMessage.put("content", "订单号：" + order.getNumber() + " 用户催单啦！");
+
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper =
+                    new com.fasterxml.jackson.databind.ObjectMapper();
+            String wsJson = objectMapper.writeValueAsString(wsMessage);
+            webSocketServer.sendToAllClient(wsJson);
+        } catch (Exception e) {
+            log.error("催单推送失败：", e);
+        }
+    }
+
 
     public String generateOrderNumber() {
         //时间戳

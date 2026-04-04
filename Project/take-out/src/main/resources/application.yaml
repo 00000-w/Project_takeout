@@ -2,6 +2,17 @@ server: #服务器相关配置
   port: 8080 #端口号
 
 spring: #spring框架核心配置
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
   application: #应用名称配置
     name: take-out #项目名称（外卖）
   datasource: #数据库连接配置
@@ -25,4 +36,7 @@ sky: #代表苍穹外卖（项目前缀sky-takeout）
   upload: #上传相关的配置
     # 图片上传到项目根目录下的 uploads 文件夹
     path: uploads/
+  wechat:
+    appid:  #没注册微信小程序，此处假装已经有appid和密码了
+    secret:
 

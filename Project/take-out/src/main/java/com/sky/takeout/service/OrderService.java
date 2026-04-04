@@ -38,4 +38,8 @@ public interface OrderService {
 
     //获取支付状态
     Map<String, Object> getPaymentStatus(String orderNumber);
+
+    // 用户催单
+    void reminder(Long id);
+
 }

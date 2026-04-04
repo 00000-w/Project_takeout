@@ -33,6 +33,23 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+        <!-- WebSocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Spring Cache（配合Redis使用注解缓存）-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
         <!-- 解决 JDK17：javax.xml.bind 缺失 -->
         <dependency>
             <groupId>javax.xml.bind</groupId>

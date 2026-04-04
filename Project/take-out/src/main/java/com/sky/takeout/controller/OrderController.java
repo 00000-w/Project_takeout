@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-/**
- * 用户端订单接口
- */
 @RestController
 @RequestMapping("/user/order")
 public class OrderController {
@@ -62,4 +59,12 @@ public class OrderController {
         orderService.cancel(dto);
         return Result.success();
     }
+
+    // 用户催单
+    @GetMapping("/reminder/{id}")
+    public Result<Void> reminder(@PathVariable Long id) {
+        orderService.reminder(id);
+        return Result.success();
+    }
+
 }
