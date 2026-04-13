@@ -133,7 +133,7 @@ public class SetmealServiceImpl implements SetmealService {
     }
 
     @Override
-    @CacheEvict(value = "setmeal", allEntries = true)
+    @CacheEvict(value = "employee", allEntries = true)
     public void updateStatus(Integer status, Long id) {
         Setmeal setmeal = Setmeal.builder().id(id).status(status).build();
         setmealMapper.updateById(setmeal);

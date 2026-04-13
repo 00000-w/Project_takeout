@@ -9,6 +9,7 @@ import com.sky.takeout.utils.JwtUtil;
 import javax.servlet.http.HttpServletRequest;
 
 import com.sky.takeout.vo.LoginVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 
 /*  员工启用/禁用第3步：添加接口
 * */
+@Slf4j
 @RestController
 @RequestMapping("admin/employee")
 public class EmployeeController {
@@ -84,6 +86,7 @@ public class EmployeeController {
         return result;
     }
 
+
     //根据id查询员工
     @GetMapping("/{id}")
     public Result<Employee> getById(@PathVariable Long id) {
@@ -94,10 +97,11 @@ public class EmployeeController {
 
     //更新员工信息
     //此处为Put
-    @PutMapping("update")
+    // 更新员工信息
+    @PutMapping({"", "/update"})
     public Result<Void> update(@RequestBody Employee employee) {
+        log.info("更新员工：{}", employee);
         employeeService.update(employee);
-
         return Result.success();
     }
 }

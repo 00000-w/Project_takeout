@@ -8,6 +8,9 @@ import com.sky.takeout.vo.OrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 管理端订单接口
  */
@@ -17,6 +20,18 @@ public class AdminOrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @GetMapping("/statistics")
+    public Result<Map<String, Integer>> statistics() {
+        Map<String, Integer> data = new HashMap<>();
+        data.put("toBeConfirmed", 0);
+        data.put("confirmed", 0);
+        data.put("deliveryInProgress", 0);
+        data.put("completed", 0);
+        data.put("cancelled", 0);
+        data.put("allOrders", 0);
+        return Result.success(data);
+    }
 
     // 管理端订单分页查询
     @GetMapping("/conditionSearch")
